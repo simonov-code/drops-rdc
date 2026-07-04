@@ -21,7 +21,7 @@
   .scene{position:absolute;inset:0;overflow:hidden;will-change:transform,opacity;transform-origin:50% 42%}
   #s0{background:radial-gradient(120% 90% at 50% 0%,#FAFBFE,#EEF0F6 70%)}
   #dim{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 0%,#14151C,#0A0B0F 70%);
-    opacity:0;transition:opacity .28s;pointer-events:none}
+    opacity:0;pointer-events:none}
   #dim.on{opacity:1}
   .scroller{position:absolute;left:0;right:0;top:0;will-change:transform}
 
@@ -369,7 +369,7 @@
       <div><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 9v4.5"/><circle cx="10" cy="6.3" r=".4" fill="#1C1C22" stroke="none"/></svg></div>
       <div><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke-linecap="round"><path d="M3 6h14M3 10h14M3 14h14"/><circle cx="7" cy="6" r="1.9" fill="#FAFBFE"/><circle cx="13" cy="10" r="1.9" fill="#FAFBFE"/><circle cx="8.5" cy="14" r="1.9" fill="#FAFBFE"/></svg></div>
     </div>
-    <div class="tcircle"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17V4.3c0-.7.6-1.3 1.3-1.3h7.4c.7 0 1.3.6 1.3 1.3V17l-5-3-5 3z"/></svg></div>
+    <div class="tcircle"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"/></svg></div>
   </div>
 </div>
 
@@ -529,6 +529,7 @@
   var lvName=document.getElementById('lvName'),dotEls=document.querySelectorAll('.dots i'),
       evc=document.getElementById('evc'),undoBtn=document.getElementById('undoBtn');
   var names=['Overview','Mist'], lastR=-1;
+  var dim=document.getElementById('dim');
   var evN=0, evList=[];
   function ui(){
     var R=Math.round(clamp(level,0,1));
@@ -538,8 +539,9 @@
   }
   function render(){
     var lc=clamp(level,0,1), R=Math.round(lc);
-    s0.style.opacity=clamp(1-level,0,1); s0.style.transform='scale('+(1+lc*0.6).toFixed(3)+')';
-    s1.style.opacity=clamp(level,0,1);   s1.style.transform='scale('+(0.72+lc*0.28).toFixed(3)+')';
+    s0.style.opacity=clamp(1-lc/0.55,0,1); s0.style.transform='scale('+(1+lc*0.6).toFixed(3)+')';
+    s1.style.opacity=clamp((lc-0.6)/0.4,0,1); s1.style.transform='scale('+(0.72+lc*0.28).toFixed(3)+')';
+    dim.style.opacity=clamp((lc-0.1)/0.5,0,1).toFixed(3);
     sc0.style.transform='translateY('+scroll[0].toFixed(1)+'px)';
     sc1.style.transform='translateY('+scroll[1].toFixed(1)+'px)';
     if(R!==lastR){
@@ -551,12 +553,9 @@
       ui();
     }
   }
-  var dim=document.getElementById('dim'), dimOn=false;
   function loop(){
     if(!pinch){level+=(lvT-level)*0.16;
       if(Math.abs(lvT-level)<0.001){level=lvT;}lvV=0;}
-    var wantDim=lvT===1&&level>0.9&&(!pinch||lastR===1);
-    if(wantDim!==dimOn){dimOn=wantDim;dim.classList.toggle('on',dimOn);}
     for(var i=0;i<2;i++){if(!(t1&&t1.mode==='scroll'&&t1.lv===i)){
       if(Math.abs(sV[i])>0.12){scroll[i]+=sV[i];sV[i]*=0.92;clampS(i);}}}
     render();requestAnimationFrame(loop);
