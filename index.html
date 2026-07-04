@@ -21,7 +21,7 @@
   .scene{position:absolute;inset:0;overflow:hidden;will-change:transform,opacity;transform-origin:50% 42%}
   #s0{background:radial-gradient(120% 90% at 50% 0%,#FAFBFE,#EEF0F6 70%)}
   #dim{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 0%,#14151C,#0A0B0F 70%);
-    opacity:0;transition:opacity .55s;pointer-events:none}
+    opacity:0;transition:opacity .28s;pointer-events:none}
   #dim.on{opacity:1}
   .scroller{position:absolute;left:0;right:0;top:0;will-change:transform}
 
@@ -553,9 +553,9 @@
   }
   var dim=document.getElementById('dim'), dimOn=false;
   function loop(){
-    if(!pinch){lvV+=(lvT-level)*0.16;lvV*=0.76;level+=lvV;
-      if(Math.abs(lvT-level)<0.001&&Math.abs(lvV)<0.0015){level=lvT;lvV=0;}}
-    var wantDim=!pinch&&lvT===1&&level>0.9;
+    if(!pinch){level+=(lvT-level)*0.16;
+      if(Math.abs(lvT-level)<0.001){level=lvT;}lvV=0;}
+    var wantDim=lvT===1&&level>0.9&&(!pinch||lastR===1);
     if(wantDim!==dimOn){dimOn=wantDim;dim.classList.toggle('on',dimOn);}
     for(var i=0;i<2;i++){if(!(t1&&t1.mode==='scroll'&&t1.lv===i)){
       if(Math.abs(sV[i])>0.12){scroll[i]+=sV[i];sV[i]*=0.92;clampS(i);}}}
