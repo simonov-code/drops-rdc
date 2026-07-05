@@ -286,7 +286,7 @@
 
   /* desktop cursor circle */
   @media (pointer:fine){
-    body{cursor:none}
+    #app{cursor:none}
     #cur{position:fixed;left:0;top:0;width:54px;height:54px;border-radius:50%;z-index:300;
       pointer-events:none;background:rgba(120,124,140,.28);
       border:1.5px solid rgba(235,238,248,.85);transform:translate(-50%,-50%);
@@ -414,8 +414,8 @@
 
 <div id="rz"></div>
 <div id="pre"><div class="pb"></div></div>
-<div id="cur"></div>
 </div>
+<div id="cur"></div>
 
 <script>
 (function(){
@@ -938,10 +938,12 @@
 
   render();loop();
   if(matchMedia('(pointer:fine)').matches){
-    var cur=document.getElementById('cur');
+    var cur=document.getElementById('cur'),appEl=document.getElementById('app');
     window.addEventListener('mousemove',function(e){
-      cur.style.display='block';
-      cur.style.transform='translate('+(e.clientX-27)+'px,'+(e.clientY-27)+'px)';
+      var r=appEl.getBoundingClientRect();
+      var inside=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+      cur.style.display=inside?'block':'none';
+      if(inside)cur.style.transform='translate('+(e.clientX-27)+'px,'+(e.clientY-27)+'px)';
     });
   }
 
