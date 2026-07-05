@@ -169,9 +169,12 @@
   #q{color:#1C1C22;flex:1;overflow:hidden;white-space:nowrap}
   #q .cur{display:inline-block;width:1.5px;height:15px;background:#1C1C22;vertical-align:-2px;animation:bl 1s steps(1) infinite}
   @keyframes bl{50%{opacity:0}}
-  .mic{width:22px;height:22px;border-radius:50%;background:rgba(0,122,255,.14);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
-  .mic i{width:8px;height:8px;border-radius:50%;background:#007AFF;display:block}
-  .mic.rec i{animation:rec 1s ease-in-out infinite}
+  .sbrow{display:flex;align-items:center;gap:12px}
+  .sbrow .sb{flex:1}
+  .mic{display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .mic.rec svg{animation:rec 1s ease-in-out infinite}
+  #qx{display:none;flex:0 0 auto;margin-left:auto;cursor:pointer;line-height:0}
+  #qx.on{display:block}
   @keyframes rec{50%{transform:scale(1.6)}}
   .f{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
   .f span{font-size:12px;color:#6E6E76;border:.5px solid rgba(0,0,0,.12);border-radius:11px;padding:6px 11px;background:rgba(255,255,255,.6)}
@@ -281,6 +284,16 @@
     opacity:.5;filter:saturate(.4);transition:opacity .25s,filter .25s,transform .25s;cursor:pointer}
   .eth:active{opacity:.9;filter:none}
 
+  /* desktop cursor circle */
+  @media (pointer:fine){
+    body{cursor:none}
+    #cur{position:fixed;left:0;top:0;width:54px;height:54px;border-radius:50%;z-index:300;
+      pointer-events:none;background:rgba(120,124,140,.28);
+      border:1.5px solid rgba(235,238,248,.85);transform:translate(-50%,-50%);
+      box-shadow:0 2px 14px rgba(20,30,60,.18);display:none}
+  }
+  #cur{display:none}
+
   /* phone frame on wide screens */
   #app{position:fixed;inset:0}
   @media (min-width:520px){
@@ -337,10 +350,13 @@
 <div id="ds">
   <div class="grab" id="dsGrab"></div>
 <div id="ov">
+  <div class="sbrow">
   <div class="sb">
     <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#8A8A95" stroke-width="1.6"><circle cx="7" cy="7" r="4.5"/><path d="M11 11l3 3" stroke-linecap="round"/></svg>
     <span id="q"><span id="ph" style="color:#8A8A95">Passport, receipt, screenshot…</span><span class="cur"></span></span>
-    <span class="mic" id="mic"><i></i></span>
+    <span id="qx"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#8A8A95" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="6.4" fill="#D9DCE3" stroke="none"/><path d="M4.6 4.6l4.8 4.8M9.4 4.6l-4.8 4.8" stroke="#70707A"/></svg></span>
+  </div>
+  <span class="mic" id="mic"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="#8A8A95" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7.2" y="2.5" width="5.6" height="10" rx="2.8"/><path d="M4.5 9.5a5.5 5.5 0 0 0 11 0"/><path d="M10 15v2.5"/></svg></span>
   </div>
   <div class="f"><span class="doc">Documents</span><span>Receipts</span><span>Measurements</span><span>Screenshots</span><span>People</span></div>
 </div>
@@ -398,6 +414,7 @@
 
 <div id="rz"></div>
 <div id="pre"><div class="pb"></div></div>
+<div id="cur"></div>
 </div>
 
 <script>
@@ -816,7 +833,19 @@
     docState=1;scrim.classList.add('on');ds.classList.add('on');kb.classList.add('on');
     ds.style.bottom=kb.offsetHeight+'px';
   });
-  var kb=document.getElementById('kb');
+  var kb=document.getElementById('kb'),qx=document.getElementById('qx');
+  function clearQ(){
+    q.querySelectorAll('span:not(.cur):not(#ph)').forEach(function(n){n.remove();});
+    if(!document.getElementById('ph')){
+      ph=document.createElement('span');ph.id='ph';ph.style.color='#8A8A95';
+      ph.textContent='Passport, receipt, screenshot…';q.insertBefore(ph,q.querySelector('.cur'));
+    }else ph=document.getElementById('ph');
+  }
+  qx.addEventListener('click',function(e){
+    e.stopPropagation();
+    qx.classList.remove('on');ice.classList.remove('on');clearQ();
+    docState=1;kb.classList.add('on');ds.style.bottom=kb.offsetHeight+'px';
+  });
   var vo=document.getElementById('vo'),voTxt=document.getElementById('voTxt');
   document.getElementById('micBtn').addEventListener('click',function(){
     if(docState!==0||vwOpen||tOpen||esOpen||vo.classList.contains('on'))return;
@@ -833,7 +862,7 @@
         if(ph){ph.remove();ph=null;}
         var sp=document.createElement('span');sp.textContent=QUERY;
         q.insertBefore(sp,q.querySelector('.cur'));
-        ice.classList.add('on');
+        ice.classList.add('on');qx.classList.add('on');
       },1000);
     },1200);
   });
@@ -847,7 +876,7 @@
     var t=setInterval(function(){
       span.textContent=QUERY.slice(0,++i);
       if(i>=QUERY.length){clearInterval(t);mic.classList.remove('rec');
-        setTimeout(function(){docState=3;ice.classList.add('on');kb.classList.remove('on');ds.style.bottom='';},420);}
+        setTimeout(function(){docState=3;ice.classList.add('on');kb.classList.remove('on');ds.style.bottom='';qx.classList.add('on');},420);}
     },42);
   }
   iceBody.addEventListener('click',function(){openViewer(docs[0].t,docs[0].m,docs.map(function(d){return d.seed;}),0,true);});
@@ -858,7 +887,7 @@
   });
   function closeDoc(){
     if(docState===0)return;
-    docState=0;scrim.classList.remove('on');ds.classList.remove('on');ice.classList.remove('on');kb.classList.remove('on');ds.style.bottom='';
+    docState=0;scrim.classList.remove('on');ds.classList.remove('on');ice.classList.remove('on');kb.classList.remove('on');ds.style.bottom='';qx.classList.remove('on');clearQ();
     // rebuild search field
     q.innerHTML='<span id="ph" style="color:#8A8A95">Passport, receipt, screenshot…</span><span class="cur"></span>';
     ph=document.getElementById('ph');
@@ -908,6 +937,13 @@
   rz.addEventListener('touchend',rTap);rz.addEventListener('click',rTap);
 
   render();loop();
+  if(matchMedia('(pointer:fine)').matches){
+    var cur=document.getElementById('cur');
+    window.addEventListener('mousemove',function(e){
+      cur.style.display='block';
+      cur.style.transform='translate('+(e.clientX-27)+'px,'+(e.clientY-27)+'px)';
+    });
+  }
 
   /* preloader: hide when first-screen media ready (3s cap) */
   var pre=document.getElementById('pre');
